@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#0b1014"/>
+  <meta name="description" content="Arena Polanów — stwórz gladiatora i walcz na arenie w przeglądarce."/>
+  <title>Arena Polanów — Ku chwale areny</title>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-emblem">⚔</div><div><strong>ARENA</strong><span>POLANÓW</span></div></div>
+    <div class="aside-label">KRÓLESTWO</div>
+    <nav class="nav">
+      <button class="nav-link active" data-screen="arena"><span>⚔</span> Arena <small>WALKA</small></button>
+      <button class="nav-link" data-screen="hero"><span>♜</span> Bohater</button>
+      <button class="nav-link" data-screen="inventory"><span>▣</span> Ekwipunek</button>
+      <button class="nav-link" data-screen="shop"><span>🛒</span> Sklep</button>
+      <button class="nav-link" data-screen="expeditions"><span>🗺</span> Wyprawy</button>
+      <button class="nav-link" data-screen="ranking"><span>🏆</span> Ranking</button>
+      <button class="nav-link" data-screen="multiplayer"><span>♧</span> PvP i pokoje <span class="online-pip"></span></button>
+    </nav>
+    <div class="aside-bottom"><div class="status-dot" id="connectionDot"></div><span id="connectionLabel">Łączenie z serwerem…</span></div>
+    <p class="sidebar-version">ALFA · WERSJA 0.3.0</p>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><span class="eyebrow">KRONIKI KRÓLESTWA</span><h1 id="pageTitle">Arena chwały</h1></div><div class="header-right"><span class="currency">🟡 <strong id="gold">250</strong> <small>ZŁOTA</small></span><div class="avatar" id="headerAvatar">⚔</div><button class="btn btn-outline" id="logoutBtn" style="display:none;padding:8px 12px">Wyloguj</button><div class="header-player"><b id="headerName">Nieznany wojownik</b><small id="headerLevel">Poziom 1</small></div></div></header>
+    <section class="notice-banner" id="offlineWarning" hidden>Brak połączenia z serwerem. Uruchom projekt zgodnie z instrukcją README.</section>
+    <section class="screen visible" id="screen-arena">
+      <div class="hero-banner"><div class="hero-banner-content"><span class="eyebrow">⟡ WITAJ W KRÓLESTWIE POLANÓW</span><h2>Chwała czeka<br/><em>na odważnych.</em></h2><p>Staw czoła legendzie areny lub wyzwij żywego przeciwnika. Jedno zwycięstwo może zmienić wszystko.</p><div class="hero-banner-buttons"><button class="btn btn-gold" id="startAI">⚔ Walcz z Czarnym Wilkiem</button><button class="btn btn-ghost" data-goto="multiplayer">♧ Tryb multiplayer</button></div></div><div class="banner-decoration">♜</div></div>
+      <div class="section-top"><div><span class="eyebrow">POLE BITWY</span><h3>Piaski areny</h3></div><span class="chip" id="fightBadge">OCZEKIWANIE NA WYZWANIE</span></div>
+      <div class="battle-card"><div class="battle-status" id="battleStatus">Wybierz przeciwnika, aby rozpocząć walkę</div><div class="arena-stage">
+        <div class="arena-background"><div class="arch arch-one"></div><div class="arch arch-two"></div><div class="arch arch-three"></div><div class="floor"></div></div>
+        <div class="combatant combatant-left" id="fighterLeft"><div class="floating-damage" id="damageLeft"></div><div class="fighter-image" id="artLeft"></div><div class="fighter-shadow"></div></div>
+        <div class="combatant combatant-right" id="fighterRight"><div class="floating-damage" id="damageRight"></div><div class="fighter-image" id="artRight"></div><div class="fighter-shadow"></div></div>
+        <div class="versus-medal">VS</div>
+      </div><div class="fighters-hud">
+        <div class="fighter-info" id="infoLeft"><div class="fighter-head"><b id="leftName">Twój gladiator</b><span id="leftClass">WOJOWNIK</span></div><div class="meter"><div class="bar hp" id="leftHpBar"></div></div><div class="meter-line"><span id="leftHp">— / — HP</span><span id="leftEnergy">⚡ —</span></div></div>
+        <div class="hud-divider">✣</div>
+        <div class="fighter-info" id="infoRight"><div class="fighter-head"><b id="rightName">Czarny Wilk</b><span id="rightClass">WOJOWNIK</span></div><div class="meter"><div class="bar hp" id="rightHpBar"></div></div><div class="meter-line"><span id="rightHp">— / — HP</span><span id="rightEnergy">⚡ —</span></div></div>
+      </div><div class="combat-actions"><div class="action-heading"><span>WYBIERZ SWOJĄ AKCJĘ</span><span id="turnLabel">Brak aktywnej walki</span></div><div class="action-grid">
+        <button class="combat-btn" data-action="strike"><span class="combat-icon">⚔</span><span><b>Szybki atak</b><small>Bez kosztu</small></span></button>
+        <button class="combat-btn" data-action="heavy"><span class="combat-icon">✦</span><span><b>Potężny cios</b><small>3 energii</small></span></button>
+        <button class="combat-btn" data-action="guard"><span class="combat-icon">⛨</span><span><b>Obrona</b><small>Regeneruje energię</small></span></button>
+        <button class="combat-btn" data-action="skill"><span class="combat-icon">✹</span><span><b>Cios specjalny</b><small>5 energii</small></span></button>
+      </div></div></div>
+      <div class="battle-log-card"><div class="section-top mini"><h3>📜 Kronika pojedynku</h3><span class="eyebrow" id="roundLabel">RUNDA —</span></div><div class="battle-log" id="battleLog"><p>W ogniu areny zapisuje się historia zwycięzców…</p></div></div>
+    </section>
+    <section class="screen" id="screen-hero"><div class="section-top"><div><span class="eyebrow">TWOJA LEGENDA</span><h3>Kreator gladiatora</h3></div><span class="chip">6 PUNKTÓW DO ROZDANIA</span></div><div class="hero-layout"><div class="panel edit-panel"><label class="field-label" for="heroName">IMIĘ GLADIATORA</label><input maxlength="18" id="heroName" class="text-input" value="Wojownik Polanów" placeholder="Imię bohatera"/><label class="field-label">KLASA POSTACI</label><div class="class-choices" id="classChoices"><button data-class="warrior" class="class-option selected"><span>⚔</span><b>Wojownik</b><small>Zrównoważony</small></button><button data-class="rogue" class="class-option"><span>🗡</span><b>Łotr</b><small>Szybki i zwinny</small></button><button data-class="tank" class="class-option"><span>⛨</span><b>Strażnik</b><small>Twardy obrońca</small></button></div><label class="field-label">ATRYBUTY <span class="points-left" id="pointsLeft">0 pozostało</span></label><div id="attributeEditor"></div><p class="hint">Wykorzystaj dokładnie 6 punktów. Statystyki wpływają na walki.</p><button class="btn btn-gold wide" id="saveHero">✦ Zapisz gladiatora</button><p class="save-message" id="saveMessage"></p></div><div class="panel preview-panel"><span class="eyebrow">TWÓJ BOHATER</span><div class="character-preview" id="characterPreview"></div><h3 id="previewName">Wojownik Polanów</h3><p id="previewClass">Wojownik</p><div class="stat-list" id="previewStats"></div></div></div></section>
+    <section class="screen" id="screen-inventory"><div class="section-top"><div><span class="eyebrow">PRZYGOTUJ SIĘ DO WALKI</span><h3>Zbrojownia</h3></div><span class="chip">WYPOSAŻENIE STARTOWE</span></div><div class="inventory-layout"><div class="panel"><h4>⚔ Broń</h4><p class="hint">Wybierz jeden oręż. Każdy inaczej wpływa na atrybuty.</p><div id="weaponChoices" class="gear-list"></div></div><div class="panel"><h4>⛨ Pancerz</h4><p class="hint">Cięższy pancerz chroni lepiej, ale zmniejsza zwinność.</p><div id="armorChoices" class="gear-list"></div></div></div><div class="panel" style="margin-top:18px"><h4>🎒 Plecak i zdobyte łupy</h4><div id="backpackList" class="market-grid" style="margin-top:16px"></div></div><div class="inventory-footer"><p>Wyposażenie zmienia parametry nowo rozpoczynanych pojedynków.</p><button class="btn btn-gold" id="saveGear">Zapisz ekwipunek</button></div></section>
+    <section class="screen" id="screen-multiplayer"><div class="section-top"><div><span class="eyebrow">SPRAWDŹ SIĘ PRZECIW LUDZIOM</span><h3>Brama pojedynków PvP</h3></div><span class="chip">NA ŻYWO · SOCKET.IO</span></div><div class="pvp-banner">♜ <div><b>Wejdź do historii Polanów</b><p>Każda walka rozgrywa się na serwerze. Otwórz grę w dwóch przeglądarkach, aby przetestować rywalizację.</p></div></div><div class="pvp-grid"><div class="panel pvp-panel"><div class="pvp-symbol">⚔</div><h3>Szybka walka</h3><p>System połączy Cię z pierwszym dostępnym przeciwnikiem.</p><button class="btn btn-gold wide" id="findMatch">Znajdź rywala</button></div><div class="panel pvp-panel"><div class="pvp-symbol">♛</div><h3>Własny pokój</h3><p>Stwórz pokój i wyślij pięcioznakowy kod znajomemu.</p><button class="btn btn-outline wide" id="createRoom">Utwórz pokój</button></div><div class="panel pvp-panel"><div class="pvp-symbol">⌘</div><h3>Dołącz do znajomego</h3><p>Wpisz kod otrzymany od gospodarza pojedynku.</p><input class="text-input code-input" id="roomInput" placeholder="KOD POKOJU" maxlength="5"/><button class="btn btn-outline wide" id="joinRoom">Dołącz do pokoju</button></div></div><div class="waiting-room" id="waitingRoom" hidden><div><span class="eyebrow">SALA OCZEKIWANIA</span><h3 id="waitingTitle">Szukamy przeciwnika…</h3><p id="waitingDescription">Udostępnij kod innemu graczowi.</p></div><button class="btn btn-outline" id="leaveRoom">Opuść</button></div></section>
+    <section class="screen" id="screen-shop"><div class="section-top"><div><span class="eyebrow">TARG W POLANOWIE</span><h3>Sklep i handlarze</h3></div></div><div id="shopList" class="market-grid"></div></section>
+    <section class="screen" id="screen-expeditions"><div class="section-top"><div><span class="eyebrow">POZA MURAMI MIASTA</span><h3>Wyprawy i łupy</h3></div></div><p class="hint">Odkrywaj lokacje i zbieraj surowce. Po każdej wyprawie obowiązuje 30 sekund odpoczynku.</p><div id="expeditionList" class="market-grid"></div><div class="panel" id="expeditionOutcome" style="margin-top:16px">Wybierz kierunek wyprawy…</div></section>
+    <section class="screen" id="screen-ranking"><div class="section-top"><div><span class="eyebrow">NAJLEPSI GLADIATORZY</span><h3>Ranking królestwa</h3></div></div><div class="panel"><div id="rankingList">Ładowanie rankingu…</div></div></section>
+    <footer class="footer"><span>© ARENA POLANÓW · PROTOTYP ALFA</span><span>ODWAGA · HONOR · CHWAŁA</span></footer>
+  </main>
+</div>
+<div id="authOverlay" class="auth-overlay"><form id="authForm" class="panel auth-card"><div class="brand" style="margin-bottom:18px"><div class="brand-emblem">⚔</div><div><strong>ARENA</strong><span>POLANÓW</span></div></div><h2 id="authHeading">Zaloguj się do królestwa</h2><p class="hint">Twoja postać, wyposażenie i złoto są zapisywane na serwerze.</p><label class="field-label" for="authUsername">LOGIN</label><input id="authUsername" class="text-input" autocomplete="username" required minlength="3" maxlength="20"/><label class="field-label" for="authPassword">HASŁO</label><input type="password" id="authPassword" class="text-input" autocomplete="current-password" required minlength="8"/><p id="authError" class="auth-error"></p><button class="btn btn-gold wide" id="authSubmit" type="submit">Zaloguj</button><button class="btn btn-outline wide" type="button" id="authSwitch" style="margin-top:12px">Nie masz konta? Zarejestruj się</button></form></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/app.js"></script>
+</body></html>

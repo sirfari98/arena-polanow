@@ -1,0 +1,21 @@
+# Deploy Blueprint: usługa Render z dyskiem trwałym (płatna usługa).
+# Po wdrożeniu włącz automatyczny harmonogram kopii na ZEWNĘTRZNE storage.
+services:
+  - type: web
+    name: arena-polanow
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    disk:
+      name: arena-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DB_PATH
+        value: /var/data/arena.sqlite
+      - key: BACKUP_DIR
+        value: /var/data/backups
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: '1'

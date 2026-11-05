@@ -1,0 +1,10 @@
+'use strict';
+const test=require('node:test');const assert=require('node:assert/strict');
+const {validateHero,createFighter,startBattle,act,DEFAULT_AI}=require('../engine');
+const hero={name:'Polanin',heroClass:'warrior',weapon:'sword',armor:'chain',points:{strength:2,vitality:2,dexterity:2}};
+test('Postać ma prawidłowo przeliczone statystyki',()=>{const f=createFighter(hero,'a');assert.equal(f.maxHp,144);assert.equal(f.attack,26);assert.equal(f.defense,19);assert.equal(f.agility,11);});
+test('Nie pozwala na oszustwo punktami',()=>assert.throws(()=>validateHero({...hero,points:{strength:9,vitality:9,dexterity:9}})));
+test('Nie pozwala na HTML w nazwie',()=>assert.throws(()=>validateHero({...hero,name:'<script>'})));
+test('Walka odrzuca nieaktywną turę',()=>{const b=startBattle(hero,DEFAULT_AI);const other=b.fighters[1-b.turn];assert.throws(()=>act(b,other.id,'strike'));});
+test('Walka zmienia tury, obniża HP i kończy się zwycięzcą',()=>{const b=startBattle(hero,DEFAULT_AI);let steps=0;while(b.winner===null&&steps++<400){const f=b.fighters[b.turn];act(b,f.id,'strike',()=>.5);}assert.ok(b.winner);assert.ok(b.log.some(x=>x.includes('zwycięża')));});
+test('Niewystarczająca energia blokuje cios specjalny',()=>{const b=startBattle(hero,DEFAULT_AI);b.fighters[b.turn].stamina=0;assert.throws(()=>act(b,b.fighters[b.turn].id,'skill'));});
