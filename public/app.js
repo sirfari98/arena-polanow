@@ -29,10 +29,42 @@ $('classChoices').addEventListener('click',event=>{const b=event.target.closest(
 $('attributeEditor').addEventListener('click',event=>{const b=event.target.closest('[data-stat]');if(!b)return;const stat=b.dataset.stat,delta=Number(b.dataset.delta),used=Object.values(hero.points).reduce((a,c)=>a+c,0);if(delta>0&&used>=6||delta<0&&hero.points[stat]<=0)return;hero.points[stat]+=delta;renderHero();});
 $('heroName').addEventListener('input',event=>{hero.name=event.target.value.trimStart();$('previewName').textContent=hero.name||'Nieznany gladiator';});
 $('saveHero').addEventListener('click',()=>{hero.name=$('heroName').value.trim();if(!validName(hero.name))return toast('Wpisz imię od 3 do 18 znaków.');if(Object.values(hero.points).reduce((a,b)=>a+b,0)!==6)return toast('Rozdziel wszystkie 6 punktów.');saveHero(()=>{$('saveMessage').textContent='✓ Gladiator zapisany. Możesz ruszać na arenę!';toast('Bohater zapisany!');});});
-function renderGear(){if($('backpackList'))$('backpackList').innerHTML=account?account.inventory.map(i=>`<article class="market-item"><h4>${esc(i.name)}</h4><p>${i.type==='material'?'✦ Materiał':i.type==='weapon'?'⚔ Broń':'🛡 Pancerz'} · szt. ${i.quantity}</p>${i.type!=='material'?`<button class="btn btn-outline wide" data-equip="${i.id}" ${hero[i.type]===i.id?'disabled':''}>${hero[i.type]===i.id?'Założony':'Załóż'}</button>`:''}</article>`).join(''):'Zaloguj się, aby wyświetlić plecak.';for(const [type,items,id] of [['weapon',WEAPONS,'weaponChoices'],['armor',ARMORS,'armorChoices']]){$(id).innerHTML=Object.entries(items).map(([key,item])=>`<button class="gear-option ${hero[type]===key?'selected':''}" data-type="${type}" data-item="${key}" ${account&&!account.inventory.some(i=>i.id===key)?'disabled':''}><span>${item.icon}</span><div><strong>${item.name}</strong><small>${item.desc}</small></div></button>`).join('');}}
-for(const id of ['weaponChoices','armorChoices'])$(id).addEventListener('click',e=>{const b=e.target.closest('[data-item]');if(!b)return;hero[b.dataset.type]=b.dataset.item;renderGear();renderHero();});
-$('saveGear').addEventListener('click',()=>saveHero(()=>toast('Ekwipunek zapisany!')));
-$('backpackList').addEventListener('click',async e=>{const b=e.target.closest('[data-equip]');if(!b)return;try{const r=await api('/equip','POST',{itemId:b.dataset.equip});applyProfile(r.profile);toast('Założono przedmiot.');}catch(error){toast(error.message);}});
+let equipping=false;
+function renderGear(){
+ for(const [type,items,listId] of [['weapon',WEAPONS,'weaponChoices'],['armor',ARMORS,'armorChoices']]){
+  const owned=account?.inventory.filter(item=>item.type===type&&items[item.id])??[];
+  $(listId).innerHTML=owned.map(({id})=>{
+   const item=items[id],equipped=account.hero[type]===id;
+   return `<button type="button" class="gear-option ${equipped?'selected':''}" data-equip="${id}" ${equipped||equipping?'disabled':''}>
+    <span aria-hidden="true">${item.icon}</span><div><strong>${item.name}</strong><small>${item.desc}</small></div>
+    <b class="gear-status">${equipped?'✓ Założony':'Załóż'}</b>
+   </button>`;
+  }).join('')||'<p class="hint">Brak przedmiotów w tej kategorii.</p>';
+ }
+ const materials=account?.inventory.filter(item=>item.type==='material')??[];
+ $('backpackList').innerHTML=materials.map(item=>
+  `<article class="market-item"><h4>${esc(item.name)}</h4><p>Sztuk: ${item.quantity}</p></article>`
+ ).join('')||'<p class="hint">Brak materiałów.</p>';
+}
+$('screen-inventory').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-equip]');
+ if(!button||button.disabled||equipping||!account)return;
+ const token=authToken;
+ equipping=true;
+ renderGear();
+ try{
+  const {profile}=await api('/equip','POST',{itemId:button.dataset.equip});
+  if(authToken!==token)return;
+  applyProfile(profile);
+  if(!battle)renderBattle();
+  toast('Założono przedmiot.');
+ }catch(error){
+  if(authToken===token)toast(error.message);
+ }finally{
+  equipping=false;
+  renderGear();
+ }
+});
 function animate(event,state){if(!event)return;const actorIndex=state.fighters.findIndex(f=>f.id===event.actor);const targetIndex=1-actorIndex;const actor=$('fighter'+(actorIndex===0?'Left':'Right')),target=$('fighter'+(targetIndex===0?'Left':'Right'));const damage=$('damage'+(targetIndex===0?'Left':'Right'));const attackClass=actorIndex===0?'attack-left':'attack-right';actor.classList.remove('attack-left','attack-right','defend');target.classList.remove('hit','dodge');void actor.offsetWidth;actor.classList.add(event.action==='guard'?'defend':attackClass);if(event.action!=='guard'){target.classList.add(event.dodge?'dodge':'hit');damage.textContent=event.dodge?'UNIK':event.crit?`−${event.damage} ✦`:`−${event.damage}`;damage.classList.remove('show');void damage.offsetWidth;damage.classList.add('show');}clearTimeout(animationTimer);animationTimer=setTimeout(()=>{actor.classList.remove('attack-left','attack-right','defend');target.classList.remove('hit','dodge');},540);}
 function renderBattle(event=null){if(!battle){$('battleStatus').textContent='Wybierz przeciwnika, aby rozpocząć walkę';$('fightBadge').textContent='OCZEKIWANIE NA WYZWANIE';$('turnLabel').textContent='Brak aktywnej walki';$('roundLabel').textContent='RUNDA —';$('battleLog').innerHTML='<p>W ogniu areny zapisuje się historia zwycięzców…</p>';document.querySelectorAll('[data-action]').forEach(b=>b.disabled=true);setFighterHUD(0,hero,computed(),null);setFighterHUD(1,{...DEFAULT,name:'Czarny Wilk'},null,null);return;}
 const opponent=battle.fighters.findIndex(f=>f.id===playerId);const mineIndex=opponent<0?0:opponent;const myTurn=battle.winner===null&&battle.fighters[battle.turn].id===playerId;const current=battle.fighters[mineIndex];battle.fighters.forEach((f,i)=>setFighterHUD(i,f,null,f));$('fightBadge').textContent=battle.winner===null?'WALKA TRWA':battle.winner===playerId?'ZWYCIĘSTWO':'PORAŻKA';$('battleStatus').textContent=battle.winner!==null?(battle.winner===playerId?'⚜ Zwycięstwo! Chwała należy do Ciebie!':'Porażka. Wróć silniejszy!'):myTurn?'⚔ Twoja tura — wybierz działanie':'⏳ Tura przeciwnika';$('turnLabel').textContent=battle.winner!==null?'Walka zakończona':myTurn?'TWOJA TURA':'OCZEKIWANIE';$('roundLabel').textContent='RUNDA '+battle.round;$('battleLog').innerHTML=battle.log.slice().reverse().map(x=>`<p>${esc(x)}</p>`).join('');document.querySelectorAll('[data-action]').forEach(b=>{b.disabled=!myTurn||current.stamina<ACTION_COST[b.dataset.action];});if(event)animate(event,battle);

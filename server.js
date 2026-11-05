@@ -63,7 +63,16 @@ async function settle(room){if(!room.battle||room.battle.winner===null||room.set
 async function broadcast(room,event=null){if(room.battle?.winner!==null)await settle(room);for(const id of room.players)io.to(id).emit('game:state',{mode:room.mode,roomCode:room.code,playerId:id,opponentId:room.players.find(x=>x!==id)||'bot',battle:room.battle?publicBattle(room.battle):null,waiting:!room.battle,event});}
 async function detach(socket){queue=queue.filter(id=>id!==socket.id);const room=getRoom(socket);if(!room)return;room.players=room.players.filter(id=>id!==socket.id);socketRooms.delete(socket.id);if(room.players.length){if(room.battle&&room.battle.winner===null){room.battle.winner=room.players[0];room.battle.log.push('Przeciwnik opuścił walkę. Wygrywasz walkowerem.');await broadcast(room);}else io.to(room.players[0]).emit('game:notice','Przeciwnik opuścił pokój.');}for(const id of room.players)socketRooms.delete(id);rooms.delete(room.code);}
 function makeRoom(players,mode,codeValue){const c=codeValue||code();const room={code:c,players,mode,battle:null,settled:false,created:Date.now()};rooms.set(c,room);players.forEach(id=>socketRooms.set(id,c));return room;}
-async function startPvP(room){if(room.players.length!==2)return;const [a,b]=room.players.map(id=>io.sockets.sockets.get(id));if(!a||!b||!a.data.hero||!b.data.hero)return;room.battle=startBattle(a.data.hero,b.data.hero,{leftId:a.id,rightId:b.id});await broadcast(room);}
+async function startPvP(room){
+ if(room.players.length!==2)return;
+ const [leftId,rightId]=room.players;
+ const [left,right]=room.players.map(id=>io.sockets.sockets.get(id));
+ if(!left||!right)return;
+ const [leftHero,rightHero]=await Promise.all([store.getHero(left.data.userId),store.getHero(right.data.userId)]);
+ if(rooms.get(room.code)!==room||room.players.length!==2||!leftHero||!rightHero)return;
+ room.battle=startBattle(leftHero,rightHero,{leftId,rightId});
+ await broadcast(room);
+}
 function runAI(room){setTimeout(async()=>{if(rooms.get(room.code)!==room||!room.battle||room.battle.winner!==null)return;if(!room.battle.fighters[room.battle.turn].ai)return;const event=act(room.battle,'bot',chooseAIAction(room.battle));await broadcast(room,event);},750);}
 io.on('connection',async socket=>{
  socket.data.token=socket.handshake.auth?.token||null;
