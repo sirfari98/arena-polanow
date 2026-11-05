@@ -26,6 +26,17 @@ function limit(windowMs,max){return (req,res,next)=>{
 setInterval(()=>{const now=Date.now();for(const [k,v] of limits)if(v.until<=now)limits.delete(k);},60000).unref();
 
 app.use(express.static(path.join(__dirname,'public')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/style.css', (req, res) => {
+  res.sendFile(path.join(__dirname, 'style.css'));
+});
+
+app.get('/app.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'app.js'));
+});
 app.get('/health',(_req,res)=>res.json({status:'ok',name:'Arena Polanów',version:'0.3.0'}));
 const failure=(res,e,status=400)=>res.status(status).json({ok:false,error:e.message||'Błąd serwera.'});
 const wrap=fn=>(req,res)=>{try{res.json({ok:true,...fn(req)});}catch(e){failure(res,e);}};
