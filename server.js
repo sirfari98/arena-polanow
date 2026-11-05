@@ -5,6 +5,7 @@ const http=require('node:http');
 const express=require('express');
 const {Server}=require('socket.io');
 const {validateHero,startBattle,publicBattle,act,chooseAIAction,DEFAULT_AI}=require('./engine');
+if(process.env.RENDER==='true'&&!process.env.DATABASE_URL)throw Error('DATABASE_URL jest wymagany na Render.');
 const store=process.env.DATABASE_URL?require('./database-pg'):require('./database');
 const app=express();app.disable('x-powered-by');app.set('trust proxy',process.env.TRUST_PROXY==='1'?1:false);
 app.use((req,res,next)=>{

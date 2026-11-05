@@ -5,3 +5,6 @@ backups
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+
+.env
+.env.*
