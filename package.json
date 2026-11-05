@@ -1,6 +1,6 @@
 {
   "name": "arena-polanow",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Arena Polanów – grywalny prototyp areny gladiatorów z trybem PvE i PvP",
   "type": "commonjs",
@@ -9,11 +9,15 @@
     "dev": "node --watch server.js",
     "test": "node --test",
     "backup": "node scripts/backup.js",
-    "backup:verify": "node scripts/verify-backup.js"
+    "backup:verify": "node scripts/verify-backup.js",
+    "db:check": "node scripts/verify-postgres.js"
   },
-  "engines": { "node": ">=22.13" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "dependencies": {
     "express": "^4.21.2",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "pg": "^8.13.3"
   }
 }
